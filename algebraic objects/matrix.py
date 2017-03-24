@@ -1,57 +1,78 @@
-"""representing vectors from a functional perspective"""
-
-
 class Matrix():
     """a class that represents a mathematical matrix"""
-    def __init__(self: 'Vector', data: list):
+    def __init__(self: 'Matrix', data: list):
         self.data = data
+        self.rows = len(data)
+        self.columns = len(data[0])
 
-
-class Vector(Matrix):
-    """a class that represents a mathematical vector"""
-    def __init__(self: 'Vector', data: list):
-        Matrix.__init__(self, data)
-
-    def sum(self: 'Matrix', m: 'Matrix'):
+    def col_vectors(self: 'Matrix') -> list:
         """
-        :param m: is a vector object
-        :return: the sum of self and another vector object
+        :return: a list of the column vectors of self 
         """
-        len1, len2, = len(self.data), len(m.data)
+        column_vectors = list()
+        # for each index of a row vector
+        for i in range(self.rows):
+            column_vector = list()
+            # iterate through each list in data
+            for j in range(self.columns):
+                column_vector.append(self.data[j][i])
+            column_vectors.append(column_vector)
+        return column_vectors
+
+    def __str__(self):
+        """
+        :return: a string representation of a Matrix obj 
+        """
+        result = str()
+        for i in range(self.rows):
+            result += ' ' + self.data[i].__str__() + '\n'
+        return result
+
+    def __add__(self: 'Matrix', m: 'Matrix') -> 'Matrix' or None:
+        """
+        :param m: is a Matrix obj 
+        :return: returns the sum of self and m
+        """
         param = list()
-        if len1 == len2:
-            for i in range(len1):
-                param.append(self.data[i] + m.data[i])
+        if self.similar(m):
+            for i in range(self.rows):
+                row = list()
+                for j in range(self.columns):
+                    row.append(self.data[i][j] + m.data[i][j])
+                param.append(row)
+            result = Matrix(param)
         else:
-            data = None
-        return Vector(param)
+            result = None
+        return result
 
-    def product(self, c: int):
+    def __mul__(self: 'Matrix', x) -> 'Matrix':
         """
-        :param i: is a number, pref and int
-        :return: the product of a vector and a scalar
+        :param x: is a constant or a Matrix obj 
+        :return: the product of self and x
         """
         param = list()
-        for i in range(len(self.data)):
-            param.append(c*self.data[i])
-        return Vector(param)
+        if isinstance(x, int):
+            for i in range(self.rows):
+                row = list()
+                for j in range(self.columns):
+                    row.append(x*self.data[i][j])
+                param.append(row)
+            result = Matrix(param)
+        elif isinstance(x, Matrix) and self.matrix_mul_defined(x):
+            for i in range(self.rows):
+                row = list()
+                for j in range(self.columns):
+                    row.append(self.data[i][j]*x.data[i][j])
+            result = Matrix(param)
+        else:
+            result = None
+        return result
 
+    def __rmul__(self: 'Matrix', x) -> 'Matrix':
+        return self*x
 
-def sum(m1: 'Matrix', m2: 'Matrix') -> 'Matrix':
-    """
-    addition defined for algebraic objects
-    :param m1: is a Matrix obj
-    :param m2: is a Matrix obj
-    :return: the sum of m1 and m2
-    """
-    return m1.sum(m2)
+    def similar(self: 'Matrix', m: 'Matrix'):
+        return self.rows == m.rows and self.columns == m.columns
 
-
-def product(m: 'Matrix', c: int) -> 'Matrix':
-    """
-    scalar multiplication defined for algebraic objects
-    :param m: is a Matrix obj
-    :param c: is a number, pref an int
-    :return: the product of m and c
-    """
-    return m.product(c)
+    def matrix_mul_defined(self: 'Matrix', m: 'Matrix'):
+        return self.columns == m.rows
