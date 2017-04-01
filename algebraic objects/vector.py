@@ -93,6 +93,8 @@ class Vector(Matrix):
                     [self.data[0][2]], 0, -self.data[0][0],
                     [-self.data[0][1]], self.data[0][0], 0]
         v_mod = [[v.data[0][0]], [v.data[0][1]], v.data[0][2]]
+        return self_mod * v_mod
+
 
 def parallel(v1: 'Vector', v2: 'Vector') -> bool:
     return v1.parallel(v2)
@@ -107,4 +109,4 @@ def similar(v1: 'Vector', v2: 'Vector') -> bool:
 
 
 def cross(v1: 'Vector', v2: 'Vector') -> 'Vector':
-    pass
+    return v1.cross(v2)

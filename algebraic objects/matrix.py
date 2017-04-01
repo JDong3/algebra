@@ -1,3 +1,7 @@
+import copy
+from vector import Vector
+
+
 class Matrix():
     """a class that represents a mathematical matrix"""
     def __init__(self: 'Matrix', data: list):
@@ -68,11 +72,60 @@ class Matrix():
             result = None
         return result
 
+    def transpose(self: 'Matrix') -> 'Matrix':
+        """
+        :return: the Matrix representation of the transpose of self 
+        """
+        # if you input the column vectors of self into
+        param = self.col_vectors()
+        return Matrix(param)
+
+    def rref(self: 'Matrix') -> 'Matrix':
+        """
+        :return: the Matrix representation of the Row Reduced Echelon Form self 
+        """
+        pass
+
+    def row_swap(self: 'Matrix', r1: int, r2: int) -> 'Matrix':
+        """
+        :param r1: is an int, 0 <= r1 < self.rows  
+        :param r2: is ant int, 0 <= r2 < self.rows
+        :return: a Matrix that is the result of the row swap of r1 and f2
+        """
+        param = copy.deepcopy(self.data)
+        # check if r1 and f2 are in the bounds
+        if self.legal_row(r1) and self.legal_row(r2):
+            temp = param[r1]
+            param[r1] = param[r2]
+            param[r2] = temp
+            result = Matrix(param)
+        else:
+            result = None
+        return result
+
+    def row_add(self, r1: int, r2: int):
+        """
+        :param r1: 
+        :param r2: 
+        :return: a Matrix representation of the row operation adding r2 to r1
+            ie. r1 -> r1 + r2
+        """
+        param = copy.deepcopy(self.data)
+        if self.legal_row(r1) and self.legal_row(r2):
+            v1, v2 = Vector(param[r1]), Vector(param[r2])
+            v3 = v1 + v2
+            param[r1] = v3.data[0]
+            result = Matrix(param)
+
+
     def __rmul__(self: 'Matrix', x) -> 'Matrix':
         return self*x
+
+    def legal_row(self: 'Matrix', r: int) -> bool:
+        return 0 <= r < self.columns
 
     def similar(self: 'Matrix', m: 'Matrix'):
         return self.rows == m.rows and self.columns == m.columns
 
-    def matrix_mul_defined(self: 'Matrix', m: 'Matrix'):
+    def matrix_mul_defined(self: 'Matrix', m: 'Matrix') -> bool:
         return self.columns == m.rows
