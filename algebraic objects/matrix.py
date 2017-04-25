@@ -18,7 +18,7 @@ class Matrix:
         """
         result = str()
         for i in range(self.rows):
-            result += ' ' + self.data[i].__str__() + '\n'
+            result += ' ' + str([str(x) for x in self.data[i]]) + '\n'
         return result
 
     def __eq__(self: 'Matrix', m: 'Matrix') -> bool:
@@ -212,9 +212,12 @@ def rref(m: 'Matrix') -> 'Matrix':
         # find an appropriate pivot
         p = pivot(m, i)
         # manipulate until pivot is 1 and pivotal column is empty
-        m = m.row_swap(p, curr)
-        m = m.row_scale(p, Fraction(1, m.val(p, i)))
-        for j in range(curr, m.rows):
-            m = m.row_add(j, p, -m.data[j][i])
+        m = row_swap(m, p, curr)
+        print(m)
+        m = row_scale(m, p, Fraction(1, m.data[p][i]))
+        print(m)
+        for j in range(curr + 1, m.rows):
+            m = row_add(m, j, p, -m.data[j][i])
+            print(m)
         curr += 1
     return m
