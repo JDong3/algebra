@@ -96,20 +96,19 @@ def col_vectors(m: 'Matrix') -> list:
     return columns
 
 
-def pivot(m: 'Matrix', col: int) -> int or None:
+def pivot(m: 'Matrix', col: int, i: int=0) -> int or None:
     """
     :param m: is a matrix
-    :param col: column that we want to find pivot of 
+    :param col: column that we want to find pivot of
+    :param i: the start index of the dearch
     :return: the row number of appropriate pivot
     """
-    rows = m.data
-    i = 0
-    found = rows[i][col] != 0
-    while not found:
-        i += 1
-        if rows[i][col] != 0:
+    found = False
+    while i < len(m.data) and not found:
+        if m.data[i][col] != 0:
             found = True
-    return i if found else None
+        i += 1
+    return i-1 if found else None
 
 
 # matrix functions f: Matrix -> Number
@@ -127,7 +126,7 @@ def anti_trace(m: 'Matrix') -> int:
     return acc
 
 
-def det(m: 'Matrix') -> int:
+def rec_det(m: 'Matrix') -> int:
     """
     :return: the determinant of the m 
     """
@@ -146,7 +145,7 @@ def cofactor(m: 'Matrix', index: tuple) -> int:
     """
     :param m: is a matrix
     :param index: is the index of the co-factor we want to compute 
-    :return: the co-factor at index
+    :return: the co-factor at index(signed determinant of a minor matrix)
     """
     param = list()
     for i in [x for x in list(range(m.rows)) if x != index[0]]:
@@ -154,7 +153,7 @@ def cofactor(m: 'Matrix', index: tuple) -> int:
         for j in [x for x in list(range(m.columns)) if x != index[1]]:
             temp.append(m.data[i][j])
         param.append(temp)
-    return int(math.pow(-1, index[0]+index[1])) + det(Matrix(param))
+    return int(math.pow(-1, index[0]+index[1])) + rec_det(Matrix(param))
 
 
 # matrix functions f: Matrix -> Matrix
@@ -207,17 +206,36 @@ def rref(m: 'Matrix') -> 'Matrix':
     """
     param = copy.deepcopy(m.data)
     m = Matrix(param)
-    curr = 0
-    for i in range(m.columns):
-        # find an appropriate pivot
-        p = pivot(m, i)
-        # manipulate until pivot is 1 and pivotal column is empty
-        m = row_swap(m, p, curr)
-        print(m)
-        m = row_scale(m, p, Fraction(1, m.data[p][i]))
-        print(m)
-        for j in range(curr + 1, m.rows):
-            m = row_add(m, j, p, -m.data[j][i])
-            print(m)
-        curr += 1
+    print(m)  # REM
+    row = 0
+    # for each column in m.data
+    for col in range(m.columns):
+        # try to find a pivot for that column
+        piv = pivot(m, col, row)
+        # if a pivot is found
+        if piv is not None:
+            # manipulate until pivot is 1 and pivotal column is empty
+            m = row_swap(m, piv, row)
+            print(m)  # REM
+            m = row_scale(m, piv, Fraction(1, m.data[piv][col]))
+            print(m)  # REM
+            for j in range(m.rows):
+                if j != row:
+                    m = row_add(m, j, piv, -m.data[j][col])
+                    print(m)  # REM
+            row += 1
     return m
+
+
+def minor(m: 'Matrix', i: int=0, j: int=0):
+    """ 
+    :returns: a minor matrix of m without the ith and jth rows and columns 
+    """
+    
+
+
+if __name__ == '__main__':
+    rref(Matrix([[19, 25, 21, 10],
+                 [74, 61, 77, 79],
+                 [66, 88, 3, 39],
+                 [90, 99, 69, 32]]))
