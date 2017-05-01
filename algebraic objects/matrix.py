@@ -7,34 +7,76 @@ from fractions import Fraction
 class Matrix:
     """a class that represents a mathematical matrix"""
     def __init__(self: 'Matrix', data: list):
-        # on the fly fraction object injection
+        # rep invar:
+        # self.data represents the elements in the matrix
+        # self.data is a twi dimensional list
+        # the nth sublist of self.data is the nth row vector
+        # the nth element in each of the sublists gives you the nth col vector
         self.data = data
         self.rows = len(data)
         self.columns = len(data[0])
 
-    def __str__(self):
+    def __str__(self: 'Matrix') -> str:
         """
         :return: a string representation of a Matrix obj 
         """
+        # max_length_list is a list of the longest length elements in each
+        # column of the matrix
+        # we initialize the length of each of the elements in the first row of
+        # our matrix to be the max_lengths
+        max_length_list = [len(str(x)) for x in self.data[0]]
         result = str()
-        for i in range(self.rows):
-            result += ' ' + str([str(x) for x in self.data[i]]) + '\n'
+        # iterate through the rest of the rows in the matrix
+        for row in range(1, self.rows):
+            # and each of the columns in the rows
+            for col in range(self.columns):
+                # if we find an element in the matrix that is longer than the
+                # current max_length element in that column
+                if len(str(self.data[row][col])) > max_length_list[col]:
+                    # the replace it with the new max_length
+                    max_length_list[col] = len(str(self.data[row][col]))
+        # to output a row of the matrix
+        for row in range(self.rows):
+            # start the line with a [
+            result += '['
+            for col in range(self.columns - 1):
+                # at the string repr of each element of the row right
+                # justifying the string to the max_length element of the column
+                # spacing the elements of the row by two spaces
+                result += str(self.data[row][col]).rjust(max_length_list[col])\
+                          + '  '
+            # same as above but for the last element of the row, there is no
+            # need to add two spaces after it
+            result += str(self.data[row][self.columns-1])\
+                .rjust(max_length_list[self.columns-1])
+            # end the row by adding a ] and a new line char
+            result += ']' + '\n'
         return result
 
     def __eq__(self: 'Matrix', m: 'Matrix') -> bool:
-        return self.data == m.data and self.rows == m.rows and\
-            self.columns == m.columns
+        """
+        If the .data .rows and .columns variables of two matrices are equal
+        then, we say that the two matrices are equivalent or m1 == m2
+        :param m: is a Matrix object
+        :return: whether self and m are equivalent matrices
+        """
+        # isinstance is lazy evaluated first so we don't crash if we try to
+        # compare a non matrix object to our matrix
+        return isinstance(m, Matrix) and self.data == m.data and\
+            self.rows == m.rows and self.columns == m.columns
 
     def __add__(self: 'Matrix', m: 'Matrix') -> 'Matrix' or None:
         """
+        mathematical matrix addition
         :param m: is a Matrix obj 
         :return: returns the sum of self and m
         """
         param = list()
         # case: matrix addition is defined
         if add_defined(self, m):
-            # implement matrix addition
+            # for each row in our matrix
             for i in range(self.rows):
+                # create the resulting row after matrix addition is applied
                 param.append([self.data[i][x] + m.data[i][x]
                               for x in range(self.columns)])
             return Matrix(param)
@@ -44,6 +86,7 @@ class Matrix:
 
     def __mul__(self: 'Matrix', o: 'Matrix' or int) -> 'Matrix' or None:
         """
+        mathematical matrix multiplication
         :param o: is a constant or a Matrix obj 
         :return: the product of self and o
         """
@@ -66,29 +109,83 @@ class Matrix:
             return None
 
     def __rmul__(self: 'Matrix', x) -> 'Matrix':
+        """
+        :param x: is a constant 
+        :return: the product of a constant and a matrix 
+        """
+        # this function will never trigger for maxtrix x matrix since it will
+        # be caught by __mul__ first, unless you explicitly call
+        # __rmul__ for some reason
         return self*x
 
 
 # defined checker functions: they check if certain Matrix operations are
 # defined or if the matrices satisfy certain properties
 def add_defined(m1: 'Matrix', m2: 'Matrix') -> bool:
-    return m1.rows == m2.rows and m1.columns == m2.columns
+    """
+    matrix addition is defined iff m1 and m2 are both matrices of the same
+    dimension
+    :param m1: is a matrix object
+    :param m2: is a matrix object
+    :return: whether the sum of m1 and m2 is defined
+    """
+    return isinstance(m1, Matrix) and isinstance(m2, Matrix) and\
+        m1.rows == m2.rows and m1.columns == m2.columns
 
 
-def mul_defined(m1: 'Matrix', m2: 'Matrix') -> bool:
-    return m1.columns == m2.rows
+def mul_defined(m: 'Matrix' or Fraction, o: 'Matrix' or Fraction) -> bool:
+    """
+    matrix multiplication is defined for Matrix obj iff both m and o are\
+    matrices or if m is a Matrix and o is a Fraction
+    :param m: is a Matrix object
+    :param o: is a Matrix or Fraction obj
+    :return: whether the product of m and o is defined
+    """
+    # case: m and obj are matrices
+    # not: lazy evaluation prevents crash if m or o is not Matrix obj
+    if isinstance(m, Matrix) and isinstance(o, Matrix)\
+       and m.columns == o.rows:
+        return True
+    # case: m is matrix and o is Fraction
+    elif isinstance(m, Matrix) and isinstance(o, Fraction):
+        return True
+    # the case where m is Fraction and o is Matrix is caught by __rmul__ and
+    # turned into the second case where m is matrix and o is Fraction
+    else:
+        return False
 
 
 def row_defined(m: 'Matrix', r: int) -> bool:
+    """
+    a row r is said to be defined in a matrix m iff r corresponds to one of the
+    row vectors of our matrix, in our case, this happens when r is in
+    [0, .., m.rows-1]
+    :param m: is a matrix object 
+    :param r: is an int
+    :return: whether row r is defined for our matrix m
+    """
     return 0 <= r < m.rows
+
+
+def is_square(m: 'Matrix') -> bool:
+    """
+    a matrix is said to be square(nxn) if its number of columns is the same as
+    the number of rows
+    :param m: is a matrix object
+    :return: whether m is a square matrix
+    """
+    return m.rows == m.columns
 
 
 # helper matrix property functions: unofficial properties of mathematical
 # matrices that are used to optimize computations
 def col_vectors(m: 'Matrix') -> list:
     """
+    gets a list two dimensional list that represents the column vectors of m,
+    the list can be passed into a Matrix __init__ to construct the transpose
+    of m
     :param m: is a matrix
-    :return: a list of the column vectors of m 
+    :return: a list representing the column vectors of m 
     """
     columns = list()
     for i in range(m.columns):
@@ -96,64 +193,113 @@ def col_vectors(m: 'Matrix') -> list:
     return columns
 
 
-def pivot(m: 'Matrix', col: int, i: int=0) -> int or None:
+def pivot(m: 'Matrix', col: int, row: int=0) -> int or None:
     """
+    find the first pivot in the col-th column of the matrix matrix starting 
+    from the row-th row
     :param m: is a matrix
     :param col: column that we want to find pivot of
-    :param i: the start index of the dearch
+    :param i: the start index of the search
     :return: the row number of appropriate pivot
     """
+    # a row containing a non zero value in the row-th row and col-th column is
+    # said to be a pivot that we are looking for
     found = False
-    while i < len(m.data) and not found:
-        if m.data[i][col] != 0:
+    # while we are in bounds and have not yet found a pivot
+    while row < len(m.data) and not found:
+        if m.data[row][col] != 0:
             found = True
-        i += 1
-    return i-1 if found else None
+        row += 1
+    return row-1 if found else None
 
 
 # matrix functions f: Matrix -> Number
-def trace(m: 'Matrix') -> int:
-    acc = int()
-    for i in range(m.rows):
-        acc += m.data[i][i]
-    return acc
+def trace(m: 'Matrix') -> Fraction:
+    """
+    the mathematical trace of the matrix or sum of the diagonal terms of the
+    matrix m
+    :param m: is a Matrix obj 
+    :return: the trace of m
+    """
+    return sum([m.data[x][x] for x in range(m.rows)])
 
 
-def anti_trace(m: 'Matrix') -> int:
-    acc = int()
-    for i in range(m.rows):
-        acc += m.data[i][-(i+1)]
-    return acc
+def anti_trace(m: 'Matrix') -> Fraction:
+    """
+    we define the anti trace of the matrix m as the sum of the anti-diagonal
+    terms of the matrix m
+    :param m: is a nxn Matrix obj
+    :return: the anti trace of m
+    """
+    return sum([m.data[x][-(x+1)] for x in range(m.rows)])
 
 
-def rec_det(m: 'Matrix') -> int:
+def mul_trace(m: 'Matrix') -> Fraction:
+    """
+    we define the multiplicative trace of the matrix m as the product of the
+    diagonal terms of m
+    :param m: is a nxn Matrix obj
+    :return: the multiplicative trace of m
+    """
+    return list_prod([m.data[x][x] for x in range(m.rows)])
+
+
+def mul_anti_trace(m: 'Matrix') -> Fraction:
+    """
+    we define the multiplicative anti trace of the matrix m as the product of
+    the anti diagonal terms of m
+    :param m: is a nxn Matrix obj
+    :return: the multiplicative anti trace of m
+    """
+    return list_prod([m.data[x][-(x+1)] for x in range(m.rows)])
+
+
+def det(m: 'Matrix') -> Fraction:
+    """
+    the mathematical determinant of the matrix
+    :param m: is a nxn Matrix obj
+    :return: the determinant of m
+    """
+    # idea first get the matrix into ref and record a 'k' that the def of the
+    # matrix in ref form has to be mul by to get the det of the original matrix
+    param = copy.deepcopy(m.data)
+    m = Matrix(param)
+    row = 0
+    mul = 1
+    for col in range(m.columns):
+        piv = pivot(m, col, row)
+        if piv is not None:
+            if piv != row:
+                m = row_swap(m, piv, row)
+                mul = -mul
+            for i in range(row+1, m.rows):
+                    m = row_add(m, i, row,
+                                -Fraction(m.data[i][col], m.data[row][col]))
+    return mul*mul_trace(m)
+
+
+def rec_det(m: 'Matrix') -> Fraction:
     """
     :return: the determinant of the m 
     """
     if m.rows == 1:
         result = m.data[0][0]
     elif m.rows == 2:
-        result = trace(m) - anti_trace(m)
+        result = mul_trace(m) - mul_anti_trace(m)
     else:
         result = int()
         for i in range(m.columns):
-            result += cofactor(m, (1, i))
+            result += m.data[0][i]*cofactor(m, (0, i))
     return result
 
 
-def cofactor(m: 'Matrix', index: tuple) -> int:
+def cofactor(m: 'Matrix', index: tuple) -> Fraction:
     """
-    :param m: is a matrix
-    :param index: is the index of the co-factor we want to compute 
+    :param m: is a nxn matrix
+    :param index: is the index of the co-factor we want to compute
     :return: the co-factor at index(signed determinant of a minor matrix)
     """
-    param = list()
-    for i in [x for x in list(range(m.rows)) if x != index[0]]:
-        temp = list()
-        for j in [x for x in list(range(m.columns)) if x != index[1]]:
-            temp.append(m.data[i][j])
-        param.append(temp)
-    return int(math.pow(-1, index[0]+index[1])) + rec_det(Matrix(param))
+    return int(math.pow(-1, sum(index)))*det(minor(m, index))
 
 
 # matrix functions f: Matrix -> Matrix
@@ -206,7 +352,7 @@ def rref(m: 'Matrix') -> 'Matrix':
     """
     param = copy.deepcopy(m.data)
     m = Matrix(param)
-    print(m)  # REM
+    print(m)
     row = 0
     # for each column in m.data
     for col in range(m.columns):
@@ -216,22 +362,27 @@ def rref(m: 'Matrix') -> 'Matrix':
         if piv is not None:
             # manipulate until pivot is 1 and pivotal column is empty
             m = row_swap(m, piv, row)
-            print(m)  # REM
+            print(m)
             m = row_scale(m, piv, Fraction(1, m.data[piv][col]))
-            print(m)  # REM
+            print(m)
             for j in range(m.rows):
                 if j != row:
-                    m = row_add(m, j, piv, -m.data[j][col])
-                    print(m)  # REM
+                    m = row_add(m, j, row, -m.data[j][col])
+                    print(m)
             row += 1
+    print(m)
     return m
 
 
-def minor(m: 'Matrix', i: int=0, j: int=0):
+def minor(m: 'Matrix', index: tuple):
     """ 
     :returns: a minor matrix of m without the ith and jth rows and columns 
     """
-    
+    param = list()
+    for k in range(m.rows):
+        if k != index[0]:
+            param.append([m.data[k][x] for x in range(m.columns) if x != index[1]])
+    return Matrix(param)
 
 
 if __name__ == '__main__':
@@ -239,3 +390,4 @@ if __name__ == '__main__':
                  [74, 61, 77, 79],
                  [66, 88, 3, 39],
                  [90, 99, 69, 32]]))
+    help(Matrix)

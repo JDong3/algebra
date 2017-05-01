@@ -115,3 +115,137 @@ class RrefTests(unittest.TestCase):
                          Matrix([[1, 1, 1],
                                  [0, 0, 0],
                                  [0, 0, 0]]))
+
+
+class MinorTests(unittest.TestCase):
+    def test_stuff(self):
+        m = Matrix([[1, 2, 3],
+                    [4, 5, 6],
+                    [7, 8, 9]])
+        self.assertEqual(minor(Matrix([[1, 2, 3],
+                                      [4, 5, 6],
+                                      [7, 8, 9]]), (0, 0)),
+                         Matrix([[5, 6],
+                                 [8, 9]]))
+        self.assertEqual(minor(Matrix([[1, 2, 3],
+                                       [4, 5, 6],
+                                       [7, 8, 9]]), (0, 1)),
+                         Matrix([[4, 6],
+                                 [7, 9]]))
+        self.assertEqual(minor(Matrix([[1, 2, 3],
+                                       [4, 5, 6],
+                                       [7, 8, 9]]), (0, 2)),
+                         Matrix([[4, 5],
+                                 [7, 8]]))
+        self.assertEqual(minor(Matrix([[1, 2, 3],
+                                       [4, 5, 6],
+                                       [7, 8, 9]]), (1, 0)),
+                         Matrix([[2, 3],
+                                 [8, 9]]))
+        self.assertEqual(minor(Matrix([[1, 2, 3],
+                                       [4, 5, 6],
+                                       [7, 8, 9]]), (1, 1)),
+                         Matrix([[1, 3],
+                                 [7, 9]]))
+        self.assertEqual(minor(Matrix([[1, 2, 3],
+                                       [4, 5, 6],
+                                       [7, 8, 9]]), (1, 2)),
+                         Matrix([[1, 2],
+                                 [7, 8]]))
+        self.assertEqual(minor(Matrix([[1, 2, 3],
+                                       [4, 5, 6],
+                                       [7, 8, 9]]), (2, 0)),
+                         Matrix([[2, 3],
+                                 [5, 6]]))
+        self.assertEqual(minor(Matrix([[1, 2, 3],
+                                       [4, 5, 6],
+                                       [7, 8, 9]]), (2, 1)),
+                         Matrix([[1, 3],
+                                 [4, 6]]))
+        self.assertEqual(minor(Matrix([[1, 2, 3],
+                                       [4, 5, 6],
+                                       [7, 8, 9]]), (2, 2)),
+                         Matrix([[1, 2],
+                                 [4, 5]]))
+
+
+class TraceTests(unittest.TestCase):
+    def test_stuff(self):
+        m = Matrix([[2, 0, 0],
+                    [0, 3, 0],
+                    [0, 0, 7]])
+        self.assertEqual(trace(Matrix([[2, 0, 0],
+                                       [0, 3, 0],
+                                       [0, 0, 7]])), 12)
+        self.assertEqual(trace(Matrix([[2, -3, 2],
+                                       [3, 3, 6],
+                                       [4, 6, 7]])), 12)
+        self.assertEqual(trace(Matrix([[-2, 0, 0],
+                                       [0, 3, 0],
+                                       [0, 0, 7]])), 8)
+
+
+class AntiTraceTests(unittest.TestCase):
+    def test_stuff(self):
+        m = Matrix([[0, 0, 2],
+                    [0, 3, 0],
+                    [7, 0, 0]])
+        self.assertEqual(anti_trace(Matrix([[0, 0, 2],
+                                            [0, 3, 0],
+                                            [7, 0, 0]])), 12)
+        self.assertEqual(anti_trace(Matrix([[3, 3, 2],
+                                            [3, 3, 3],
+                                            [7, 3, 3]])), 12)
+        self.assertEqual(anti_trace(Matrix([[0, 0, -2],
+                                            [0, 3, 0],
+                                            [7, 0, 0]])), 8)
+
+
+class MulTraceTests(unittest.TestCase):
+    def test_stuff(self):
+        m = Matrix([[2, 0, 0],
+                    [0, 3, 0],
+                    [0, 0, 7]])
+        self.assertEqual(mul_trace(Matrix([[2, 0, 0],
+                                           [0, 3, 0],
+                                           [0, 0, 7]])), 42)
+        self.assertEqual(mul_trace(Matrix([[2, -3, 2],
+                                           [3, 3, 6],
+                                           [4, 6, 7]])), 42)
+        self.assertEqual(mul_trace(Matrix([[-2, 0, 0],
+                                           [0, 3, 0],
+                                           [0, 0, 7]])), -42)
+
+
+class MulAntiTraceTests(unittest.TestCase):
+    def test_stuff(self):
+        m = Matrix([[0, 0, 2],
+                    [0, 3, 0],
+                    [7, 0, 0]])
+        self.assertEqual(mul_anti_trace(Matrix([[0, 0, 2],
+                                                [0, 3, 0],
+                                                [7, 0, 0]])), 42)
+        self.assertEqual(mul_anti_trace(Matrix([[3, 3, 2],
+                                                [3, 3, 3],
+                                                [7, 3, 3]])), 42)
+        self.assertEqual(mul_anti_trace(Matrix([[0, 0, -2],
+                                                [0, 3, 0],
+                                                [7, 0, 0]])), -42)
+
+
+class RecDetTests(unittest.TestCase):
+    def test_base_case(self):
+        self.assertEqual(rec_det(Matrix([[5]])), 5)
+
+    def test_2x2_matrix(self):
+        self.assertEqual(rec_det(Matrix([[1, 0],
+                                         [0, 1]])), 1)
+        self.assertEqual(rec_det(Matrix([[1, 1],
+                                         [1, 1]])), 0)
+        self.assertEqual(rec_det(Matrix([[2, 5],
+                                         [7, 3]])), -29)
+
+    def test_3x3_matrix(self):
+        self.assertEqual(rec_det(Matrix([[3, 2, 1],
+                                         [0, 2, 1],
+                                         [0, 0, -2]])), -12)
