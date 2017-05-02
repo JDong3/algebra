@@ -18,7 +18,7 @@ class Matrix:
 
     def __str__(self: 'Matrix') -> str:
         """
-        :return: a string representation of a Matrix obj 
+        :return: a string representation of a Matrix obj
         """
         # max_length_list is a list of the longest length elements in each
         # column of the matrix
@@ -68,7 +68,7 @@ class Matrix:
     def __add__(self: 'Matrix', m: 'Matrix') -> 'Matrix' or None:
         """
         mathematical matrix addition
-        :param m: is a Matrix obj 
+        :param m: is a Matrix obj
         :return: returns the sum of self and m
         """
         param = list()
@@ -87,7 +87,7 @@ class Matrix:
     def __mul__(self: 'Matrix', o: 'Matrix' or int) -> 'Matrix' or None:
         """
         mathematical matrix multiplication
-        :param o: is a constant or a Matrix obj 
+        :param o: is a constant or a Matrix obj
         :return: the product of self and o
         """
         param = list()
@@ -110,10 +110,10 @@ class Matrix:
 
     def __rmul__(self: 'Matrix', x) -> 'Matrix':
         """
-        :param x: is a constant 
-        :return: the product of a constant and a matrix 
+        :param x: is a constant
+        :return: the product of a constant and a matrix
         """
-        # this function will never trigger for maxtrix x matrix since it will
+        # this function will never trigger for matrix x matrix since it will
         # be caught by __mul__ first, unless you explicitly call
         # __rmul__ for some reason
         return self*x
@@ -160,7 +160,7 @@ def row_defined(m: 'Matrix', r: int) -> bool:
     a row r is said to be defined in a matrix m iff r corresponds to one of the
     row vectors of our matrix, in our case, this happens when r is in
     [0, .., m.rows-1]
-    :param m: is a matrix object 
+    :param m: is a matrix object
     :param r: is an int
     :return: whether row r is defined for our matrix m
     """
@@ -185,7 +185,7 @@ def col_vectors(m: 'Matrix') -> list:
     the list can be passed into a Matrix __init__ to construct the transpose
     of m
     :param m: is a matrix
-    :return: a list representing the column vectors of m 
+    :return: a list representing the column vectors of m
     """
     columns = list()
     for i in range(m.columns):
@@ -195,7 +195,7 @@ def col_vectors(m: 'Matrix') -> list:
 
 def pivot(m: 'Matrix', col: int, row: int=0) -> int or None:
     """
-    find the first pivot in the col-th column of the matrix matrix starting 
+    find the first pivot in the col-th column of the matrix matrix starting
     from the row-th row
     :param m: is a matrix
     :param col: column that we want to find pivot of
@@ -218,7 +218,7 @@ def trace(m: 'Matrix') -> Fraction:
     """
     the mathematical trace of the matrix or sum of the diagonal terms of the
     matrix m
-    :param m: is a Matrix obj 
+    :param m: is a Matrix obj
     :return: the trace of m
     """
     return sum([m.data[x][x] for x in range(m.rows)])
@@ -260,7 +260,7 @@ def det(m: 'Matrix') -> Fraction:
     :param m: is a nxn Matrix obj
     :return: the determinant of m
     """
-    # idea first get the matrix into ref and record a 'k' that the def of the
+    # idea first get the matrix into ref and record a 'k' that the det of the
     # matrix in ref form has to be mul by to get the det of the original matrix
     param = copy.deepcopy(m.data)
     m = Matrix(param)
@@ -275,12 +275,14 @@ def det(m: 'Matrix') -> Fraction:
             for i in range(row+1, m.rows):
                     m = row_add(m, i, row,
                                 -Fraction(m.data[i][col], m.data[row][col]))
+        row += 1
     return mul*mul_trace(m)
 
 
 def rec_det(m: 'Matrix') -> Fraction:
     """
-    :return: the determinant of the m 
+    :param m: is a nxn matrix obj
+    :return: the determinant of the m
     """
     if m.rows == 1:
         result = m.data[0][0]
@@ -289,6 +291,7 @@ def rec_det(m: 'Matrix') -> Fraction:
     else:
         result = int()
         for i in range(m.columns):
+            cof = cofactor(m, (0, i))
             result += m.data[0][i]*cofactor(m, (0, i))
     return result
 
@@ -299,24 +302,32 @@ def cofactor(m: 'Matrix', index: tuple) -> Fraction:
     :param index: is the index of the co-factor we want to compute
     :return: the co-factor at index(signed determinant of a minor matrix)
     """
-    return int(math.pow(-1, sum(index)))*det(minor(m, index))
+    return int(math.pow(-1, sum(index)))*rec_det(minor(m, index))
 
 
 # matrix functions f: Matrix -> Matrix
 def transpose(m: 'Matrix') -> 'Matrix':
+    """
+    the transpose of a matrix m is a matrix s.t. each i,j th element of m is
+    the j, i th element of transpose(m)
+    :param m: is a matrix obj
+    :return: the transpose of m
+    """
     return Matrix(col_vectors(m))
 
 
 def row_swap(m: 'Matrix', r1: int, r2: int) -> 'Matrix' or None:
     """
+    elementary row operation, row swap r1 <-> r2
     :param m: is a matrix
-    :param r1: is an int, 0 <= r1 < m.rows  
+    :param r1: is an int, 0 <= r1 < m.rows
     :param r2: is ant int, 0 <= r2 < m.rows
-    :return: a Matrix that is the result of the row swap of r1 and f2
+    :return: a Matrix that is the result of the row swap of r1 and r2
     """
     param = copy.deepcopy(m.data)
     # check if r1 and f2 are in the bounds
     if row_defined(m, r1) and row_defined(m, r2):
+        # if so then swap r1 and r2
         temp = param[r1]
         param[r1] = param[r2]
         param[r2] = temp
@@ -325,12 +336,13 @@ def row_swap(m: 'Matrix', r1: int, r2: int) -> 'Matrix' or None:
         return None
 
 
-def row_add(m: 'Matrix', r1: int, r2: int, k: int=1):
+def row_add(m: 'Matrix', r1: int, r2: int, k: Fraction=Fraction(1)):
     """
+    elementary row operation, row addition r1 -> r1 + k*r2
     :param m: is a matrix
-    :param r1: 
-    :param r2: 
-    :param k: constant
+    :param r1: is an int, 0 <= r1 < m.rows
+    :param r2: is an int, 0 <= r2 < m.rows
+    :param k: is a Fraction obj
     :return: a Matrix representation of the row operation adding r2 to r1
         ie. r1 -> r1 + r2
     """
@@ -340,7 +352,14 @@ def row_add(m: 'Matrix', r1: int, r2: int, k: int=1):
     return Matrix(param)
 
 
-def row_scale(m: 'Matrix', r: int, k: int):
+def row_scale(m: 'Matrix', r: int, k: Fraction=Fraction(1)):
+    """
+    elementary row operation, row multiplication by scalar constant r1 -> k*r1
+    :param m: is a matrix
+    :param r: is an int, 0 <= r < m.rows
+    :param k: is a Fraction obj
+    :return:
+    """
     param = copy.deepcopy(m.data)
     param[r] = [k*x for x in param[r]]
     return Matrix(param)
@@ -348,7 +367,7 @@ def row_scale(m: 'Matrix', r: int, k: int):
 
 def rref(m: 'Matrix') -> 'Matrix':
     """
-    :return: the Matrix representation of the Row Reduced Echelon Form m 
+    :return: the Matrix representation of the Row Reduced Echelon Form m
     """
     param = copy.deepcopy(m.data)
     m = Matrix(param)
@@ -369,14 +388,17 @@ def rref(m: 'Matrix') -> 'Matrix':
                 if j != row:
                     m = row_add(m, j, row, -m.data[j][col])
                     print(m)
-            row += 1
+        row += 1
     print(m)
     return m
 
 
 def minor(m: 'Matrix', index: tuple):
-    """ 
-    :returns: a minor matrix of m without the ith and jth rows and columns 
+    """
+    :param m: is a matrix
+    :tuple index: is the index of the ith row and jth column that will be
+        removed
+    :return: a minor matrix of m without the ith and jth rows and columns
     """
     param = list()
     for k in range(m.rows):
@@ -386,8 +408,12 @@ def minor(m: 'Matrix', index: tuple):
 
 
 if __name__ == '__main__':
-    rref(Matrix([[19, 25, 21, 10],
+    '''rref(Matrix([[19, 25, 21, 10],
                  [74, 61, 77, 79],
                  [66, 88, 3, 39],
                  [90, 99, 69, 32]]))
     help(Matrix)
+    '''
+    det(Matrix([[3, 2, 1],
+                [0, 2, 1],
+                [0, 0, -2]]))

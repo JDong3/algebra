@@ -249,3 +249,21 @@ class RecDetTests(unittest.TestCase):
         self.assertEqual(rec_det(Matrix([[3, 2, 1],
                                          [0, 2, 1],
                                          [0, 0, -2]])), -12)
+
+
+class DetTests(unittest.TestCase):
+    def test_base_case(self):
+        self.assertEqual(det(Matrix([[5]])), 5)
+
+    def test_2x2_matrix(self):
+        self.assertEqual(det(Matrix([[1, 0],
+                                     [0, 1]])), 1)
+        self.assertEqual(det(Matrix([[1, 1],
+                                     [1, 1]])), 0)
+        self.assertEqual(det(Matrix([[2, 5],
+                                     [7, 3]])), -29)
+
+    def test_3x3_matrix(self):
+        self.assertEqual(det(Matrix([[3, 2, 1],
+                                     [0, 2, 1],
+                                     [0, 0, -2]])), -12)
