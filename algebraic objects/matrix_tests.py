@@ -7,7 +7,7 @@ class ColVectorTests(unittest.TestCase):
     def test_single_element_case(self):
         self.assertEqual(col_vectors(Matrix([[1]])), [[1]])
 
-    def test_matrix(self):
+    def test_multiple_element_matrix(self):
         self.assertEqual(
             col_vectors(Matrix([[1, 2, 3],
                                 [1, 2, 3],
@@ -15,6 +15,29 @@ class ColVectorTests(unittest.TestCase):
             [[1, 1, 1],
              [2, 2, 2],
              [3, 3, 3]])
+        # a 3x4 matrix
+        self.assertEqual(col_vectors(Matrix([[1, 2, 3, 4],
+                                             [1, 2, 3, 4],
+                                             [1, 2, 3, 4]])),
+                         [[1, 1, 1],
+                          [2, 2, 2],
+                          [3, 3, 3],
+                          [4, 4, 4]])
+
+    def test_column_vector(self):
+        self.assertEqual(col_vectors(Matrix([[1],
+                                             [2],
+                                             [3],
+                                             [4],
+                                             [5]])), [[1, 2, 3, 4, 5]])
+
+    def test_row_vector(self):
+        self.assertEqual(col_vectors(Matrix([[1, 2, 3, 4, 5]])),
+                         [[1],
+                          [2],
+                          [3],
+                          [4],
+                          [5]])
 
 
 class TransposeTests(unittest.TestCase):
@@ -22,17 +45,45 @@ class TransposeTests(unittest.TestCase):
     def test_single_element_case(self):
         self.assertEqual(transpose(Matrix([[1]])), Matrix([[1]]))
 
-    def test_matrix(self):
-        self.assertEqual(
-            transpose(Matrix([[1, 1, 1],
-                              [2, 2, 2],
-                              [3, 3, 3]])),
-            Matrix([[1, 2, 3],
-                    [1, 2, 3],
-                    [1, 2, 3]]))
+    def test_multiple_element_matrix(self):
+        self.assertEqual(transpose(Matrix([[1, 2, 3],
+                                           [1, 2, 3],
+                                           [1, 2, 3]])),
+                         Matrix([[1, 1, 1],
+                                 [2, 2, 2],
+                                 [3, 3, 3]]))
+        # a 3x4 matrix
+        self.assertEqual(transpose(Matrix([[1, 2, 3, 4],
+                                           [1, 2, 3, 4],
+                                           [1, 2, 3, 4]])),
+                         Matrix([[1, 1, 1],
+                                 [2, 2, 2],
+                                 [3, 3, 3],
+                                 [4, 4, 4]]))
+
+    def test_column_vector(self):
+        self.assertEqual(transpose(Matrix([[1],
+                                           [2],
+                                           [3],
+                                           [4],
+                                           [5]])),
+                         Matrix([[1, 2, 3, 4, 5]]))
+
+    def test_row_vector(self):
+        self.assertEqual(transpose(Matrix([[1, 2, 3, 4, 5]])),
+                         Matrix([[1],
+                                 [2],
+                                 [3],
+                                 [4],
+                                 [5]]))
 
 
 class AddTests(unittest.TestCase):
+
+    def test_single_element_case(self):
+        self.assertEqual(Matrix([[1, 2, 3, 4]])+
+                         Matrix([[1, 2, 3, 4]]),
+                         Matrix([[2, 4, 6, 8]]))
 
     def test_stuff(self):
         self.assertEqual(Matrix([[1, 2, 3],
@@ -267,3 +318,5 @@ class DetTests(unittest.TestCase):
         self.assertEqual(det(Matrix([[3, 2, 1],
                                      [0, 2, 1],
                                      [0, 0, -2]])), -12)
+
+unittest.main()

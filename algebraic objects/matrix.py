@@ -302,7 +302,7 @@ def cofactor(m: 'Matrix', index: tuple) -> Fraction:
     :param index: is the index of the co-factor we want to compute
     :return: the co-factor at index(signed determinant of a minor matrix)
     """
-    return int(math.pow(-1, sum(index)))*rec_det(minor(m, index))
+    return int(math.pow(-1, sum(index)))*det(minor(m, index))
 
 
 # matrix functions f: Matrix -> Matrix
@@ -371,7 +371,7 @@ def rref(m: 'Matrix') -> 'Matrix':
     """
     param = copy.deepcopy(m.data)
     m = Matrix(param)
-    print(m)
+    # toggle print(m)
     row = 0
     # for each column in m.data
     for col in range(m.columns):
@@ -381,19 +381,18 @@ def rref(m: 'Matrix') -> 'Matrix':
         if piv is not None:
             # manipulate until pivot is 1 and pivotal column is empty
             m = row_swap(m, piv, row)
-            print(m)
+            # toggle print(m)
             m = row_scale(m, piv, Fraction(1, m.data[piv][col]))
-            print(m)
+            # toggle print(m)
             for j in range(m.rows):
                 if j != row:
                     m = row_add(m, j, row, -m.data[j][col])
-                    print(m)
+                    # toggle print(m)
         row += 1
-    print(m)
     return m
 
 
-def minor(m: 'Matrix', index: tuple):
+def minor(m: 'Matrix', index: tuple) -> 'Matrix':
     """
     :param m: is a matrix
     :tuple index: is the index of the ith row and jth column that will be
@@ -407,13 +406,42 @@ def minor(m: 'Matrix', index: tuple):
     return Matrix(param)
 
 
+def adjugate(m: 'Matrix') -> 'Matrix':
+    """
+    the mathematical adjugate of m
+    :param m: is a nxn matrix matrix
+    :return: the adjugate of m
+    """
+    # idea: first construct the cofactor matrix, then transpose it
+    param = list()
+    if is_square(m):
+        for row in m.rows:
+            param.append([cofactor(m, (row, x)) for x in range(m.columns)])
+        return Matrix(param)
+    else:
+        return None
+
+
+def inverse(m: 'Matrix') -> 'Matrix':
+    """
+    :param m: is a nxn matrix
+    :return: the inverse matrix of m
+    """
+    # inefficient method: first look for det of m, if its 0 then there is no
+    # inverse, otherwise compute the inverse
+    if det(m) != 0:
+        return Fraction(1, det(m))*transpose(adjugate(m))
+    else:
+        return None
+
+
 if __name__ == '__main__':
-    '''rref(Matrix([[19, 25, 21, 10],
+    rref(Matrix([[19, 25, 21, 10],
                  [74, 61, 77, 79],
                  [66, 88, 3, 39],
                  [90, 99, 69, 32]]))
     help(Matrix)
-    '''
+
     det(Matrix([[3, 2, 1],
                 [0, 2, 1],
                 [0, 0, -2]]))

@@ -34,3 +34,5 @@ class VectorDotTests(unittest.TestCase):
     def test_some_stuff(self):
         self.assertEqual(dot(Vector([1, 2, 3]), Vector([1, 2, 3])), 14)
         self.assertEqual(dot(Vector([1, 0]), Vector([0, 1])), 0)
+
+unittest.main()
