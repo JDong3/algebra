@@ -2,6 +2,7 @@ import copy
 import math
 from list_functions import *
 from fractions import Fraction
+# not: do not support 0x0 matrices
 
 
 class Matrix:
@@ -24,10 +25,12 @@ class Matrix:
         # column of the matrix
         # we initialize the length of each of the elements in the first row of
         # our matrix to be the max_lengths
-        max_length_list = [len(str(x)) for x in self.data[0]]
+
+        # case: empty matrix
+        max_length_list = [1 for x in range(self.columns)]
         result = str()
         # iterate through the rest of the rows in the matrix
-        for row in range(1, self.rows):
+        for row in range(self.rows):
             # and each of the columns in the rows
             for col in range(self.columns):
                 # if we find an element in the matrix that is longer than the
@@ -262,6 +265,8 @@ def det(m: 'Matrix') -> Fraction:
     """
     # idea first get the matrix into ref and record a 'k' that the det of the
     # matrix in ref form has to be mul by to get the det of the original matrix
+
+    # the determinant of an empty matrix is defined as 1
     param = copy.deepcopy(m.data)
     m = Matrix(param)
     row = 0
@@ -279,6 +284,7 @@ def det(m: 'Matrix') -> Fraction:
     return mul*mul_trace(m)
 
 
+'''
 def rec_det(m: 'Matrix') -> Fraction:
     """
     :param m: is a nxn matrix obj
@@ -294,6 +300,7 @@ def rec_det(m: 'Matrix') -> Fraction:
             cof = cofactor(m, (0, i))
             result += m.data[0][i]*cofactor(m, (0, i))
     return result
+'''
 
 
 def cofactor(m: 'Matrix', index: tuple) -> Fraction:
@@ -302,7 +309,11 @@ def cofactor(m: 'Matrix', index: tuple) -> Fraction:
     :param index: is the index of the co-factor we want to compute
     :return: the co-factor at index(signed determinant of a minor matrix)
     """
-    return int(math.pow(-1, sum(index)))*det(minor(m, index))
+    # case: finding the cofactor of the element in a 1x1 matrix
+    if m.rows > 1 and m.columns > 1:
+        return int(math.pow(-1, sum(index)))*det(minor(m, index))
+    else:
+        return m.data[0][0]
 
 
 # matrix functions f: Matrix -> Matrix
@@ -406,7 +417,7 @@ def minor(m: 'Matrix', index: tuple) -> 'Matrix':
     return Matrix(param)
 
 
-def adjugate(m: 'Matrix') -> 'Matrix':
+def cofactors(m: 'Matrix') -> 'Matrix':
     """
     the mathematical adjugate of m
     :param m: is a nxn matrix matrix
@@ -415,11 +426,15 @@ def adjugate(m: 'Matrix') -> 'Matrix':
     # idea: first construct the cofactor matrix, then transpose it
     param = list()
     if is_square(m):
-        for row in m.rows:
+        for row in range(m.rows):
             param.append([cofactor(m, (row, x)) for x in range(m.columns)])
         return Matrix(param)
     else:
         return None
+
+
+def adjugate(m: 'Matrix') -> 'Matrix':
+    return transpose(cofactors(m))
 
 
 def inverse(m: 'Matrix') -> 'Matrix':
@@ -430,18 +445,23 @@ def inverse(m: 'Matrix') -> 'Matrix':
     # inefficient method: first look for det of m, if its 0 then there is no
     # inverse, otherwise compute the inverse
     if det(m) != 0:
-        return Fraction(1, det(m))*transpose(adjugate(m))
+        return Fraction(1, det(m))*adjugate(m)
     else:
         return None
 
 
 if __name__ == '__main__':
-    rref(Matrix([[19, 25, 21, 10],
+    '''rref(Matrix([[19, 25, 21, 10],
                  [74, 61, 77, 79],
                  [66, 88, 3, 39],
                  [90, 99, 69, 32]]))
-    help(Matrix)
-
     det(Matrix([[3, 2, 1],
                 [0, 2, 1],
                 [0, 0, -2]]))
+    '''
+    # print(cofactors(Matrix([[1]])))
+    print(Matrix([[19, 25, 21, 10],
+                  [74, 61, 77, 79],
+                  [66, 88, 3, 39],
+                  [90, 99, 69, 32]]))
+    print(Matrix([[]]))

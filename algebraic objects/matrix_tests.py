@@ -284,6 +284,7 @@ class MulAntiTraceTests(unittest.TestCase):
                                                 [7, 0, 0]])), -42)
 
 
+'''
 class RecDetTests(unittest.TestCase):
     def test_base_case(self):
         self.assertEqual(rec_det(Matrix([[5]])), 5)
@@ -300,6 +301,7 @@ class RecDetTests(unittest.TestCase):
         self.assertEqual(rec_det(Matrix([[3, 2, 1],
                                          [0, 2, 1],
                                          [0, 0, -2]])), -12)
+'''
 
 
 class DetTests(unittest.TestCase):
@@ -318,5 +320,11 @@ class DetTests(unittest.TestCase):
         self.assertEqual(det(Matrix([[3, 2, 1],
                                      [0, 2, 1],
                                      [0, 0, -2]])), -12)
+
+
+class CofactorsTests(unittest.TestCase):
+    def test_1x1_matrix(self):
+        self.assertEqual(cofactors(Matrix([[1]])),
+                         Matrix([[1]]))
 
 unittest.main()
